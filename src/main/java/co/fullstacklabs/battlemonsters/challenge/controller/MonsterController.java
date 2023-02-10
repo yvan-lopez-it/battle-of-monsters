@@ -1,7 +1,9 @@
 package co.fullstacklabs.battlemonsters.challenge.controller;
 
 import java.io.IOException;
+import java.util.List;
 
+import co.fullstacklabs.battlemonsters.challenge.model.Monster;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,38 +29,46 @@ import co.fullstacklabs.battlemonsters.challenge.service.MonsterService;
 @RestController
 @RequestMapping("/monster")
 public class MonsterController {
-    
-    @Autowired
-    private MonsterService monsterService;
 
-    @GetMapping("/{id}")
-    public MonsterDTO getMonsterById(@PathVariable("id") int monsterId) {
-        return monsterService.findById(monsterId);
-    }
+	transient private final MonsterService monsterService;
 
-    @PostMapping
-    public MonsterDTO create(@RequestBody MonsterDTO monsterDTO) {
-        return monsterService.create(monsterDTO);
-    }
+	@Autowired
+	public MonsterController(MonsterService monsterService) {
+		this.monsterService = monsterService;
+	}
 
-    @PutMapping
-    public MonsterDTO update(@RequestBody MonsterDTO monsterDTO) {
-        return monsterService.update(monsterDTO);
-    }
+	@GetMapping()
+	public List<MonsterDTO> getAllMonsters() {
+		return monsterService.getAll();
+	}
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable("id") int monsterId) {
-        monsterService.delete(monsterId);
-    }
-    
-    @PostMapping("/import")
-    public void importCsv(@RequestParam("file") MultipartFile file, 
-            RedirectAttributes redirectAttributes) {
-        try{
-            monsterService.importFromInputStream(file.getInputStream());
-        } catch (IOException ex) {
-           throw new UnprocessableFileException(ex.getMessage());
-        }
-    }
+	@GetMapping("/{id}")
+	public MonsterDTO getMonsterById(@PathVariable("id") int monsterId) {
+		return monsterService.findById(monsterId);
+	}
+
+	@PostMapping
+	public MonsterDTO create(@RequestBody MonsterDTO monsterDTO) {
+		return monsterService.create(monsterDTO);
+	}
+
+	@PutMapping
+	public MonsterDTO update(@RequestBody MonsterDTO monsterDTO) {
+		return monsterService.update(monsterDTO);
+	}
+
+	@DeleteMapping("/{id}")
+	public void delete(@PathVariable("id") int monsterId) {
+		monsterService.delete(monsterId);
+	}
+
+	@PostMapping("/import")
+	public void importCsv(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
+		try {
+			monsterService.importFromInputStream(file.getInputStream());
+		} catch (IOException ex) {
+			throw new UnprocessableFileException(ex.getMessage());
+		}
+	}
 
 }

@@ -4,9 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Service;
 
 import com.univocity.parsers.common.processor.BeanListProcessor;
@@ -28,8 +33,8 @@ import co.fullstacklabs.battlemonsters.challenge.service.MonsterService;
 @Service
 public class MonsterServiceImpl implements MonsterService {
 
-    private MonsterRepository monsterRepository;
-    private ModelMapper modelMapper;
+    transient private final MonsterRepository monsterRepository;
+    transient private final ModelMapper modelMapper;
 
     public MonsterServiceImpl(MonsterRepository monsterRepository, ModelMapper modelMapper) {
         this.monsterRepository = monsterRepository;
@@ -37,27 +42,46 @@ public class MonsterServiceImpl implements MonsterService {
     }
 
     @Override
+    public List<MonsterDTO> getAll() {
+        List<Monster> monsters = monsterRepository.findAll();
+
+        return monsters.stream()
+                .map(monster -> modelMapper.map(monster, MonsterDTO.class)).collect(Collectors.toList());
+    }
+
+    @Override
     public MonsterDTO create(MonsterDTO monsterDTO) {
+        if (monsterDTO.getId() == null) {
+            int max = 1000;
+            int min = 100;
+            int range = max - min + 1;
+            int randomInt = (int) (Math.random() * range) + min;
+            monsterDTO.setId(randomInt);
+        }
         Monster monster = modelMapper.map(monsterDTO, Monster.class);
         monster = monsterRepository.save(monster);
         return modelMapper.map(monster, MonsterDTO.class);
     }
 
     private Monster findMonsterById(int id) {
-         return monsterRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Monster not found"));
+        return monsterRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Monster not found"));
     }
 
     @Override
     public MonsterDTO findById(int id) {
         Monster monster = findMonsterById(id);
+
+        if (monster == null) {
+            throw new UnprocessableFileException("Monster not exists");
+        }
+
         return modelMapper.map(monster, MonsterDTO.class);
     }
 
     @Override
     public MonsterDTO update(MonsterDTO monsterDTO) {
-        Monster monster = findMonsterById(monsterDTO.getId());
-        monster = modelMapper.map(monsterDTO, Monster.class);        
+        // Monster monster = findMonsterById(monsterDTO.getId());
+        Monster monster = modelMapper.map(monsterDTO, Monster.class);
         monsterRepository.save(monster);
         return modelMapper.map(monster, MonsterDTO.class);
 
@@ -70,17 +94,17 @@ public class MonsterServiceImpl implements MonsterService {
     }
 
     public void importFromInputStream(InputStream inputStream) {
-        try (Reader inputReader = new InputStreamReader(inputStream, "UTF-8")) {
-            BeanListProcessor<MonsterDTO> rowProcessor = new BeanListProcessor<MonsterDTO>(MonsterDTO.class);
+        try (Reader inputReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+            BeanListProcessor<MonsterDTO> rowProcessor = new BeanListProcessor<>(MonsterDTO.class);
             CsvParserSettings settings = new CsvParserSettings();
             settings.setHeaderExtractionEnabled(true);
             settings.setProcessor(rowProcessor);
             CsvParser parser = new CsvParser(settings);
             parser.parse(inputReader);
-            List<MonsterDTO> monsters = rowProcessor.getBeans();            
-            monsters.forEach(m -> create(m));
-        } catch (IOException ex) {
-            throw new UnprocessableFileException(ex.getMessage());
+            List<MonsterDTO> monsters = rowProcessor.getBeans();
+            monsters.forEach(this::create);
+        } catch (Exception ioEx) {
+            throw new UnprocessableFileException(ioEx.getMessage());
         }
     }
 

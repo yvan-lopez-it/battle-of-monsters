@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 /**
  * @author FullStack Labs
  * @version 1.0
@@ -23,26 +22,26 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class Monster {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+	@Id
+	//@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
 
-    @Column(name = "NAME", nullable = false)
-    private String name;
+	@Column(name = "NAME", nullable = false)
+	private String name;
 
-    @Column(name = "ATTACK", nullable = false)
-    private Integer attack;
+	@Column(name = "ATTACK", nullable = false)
+	private Integer attack;
 
-    @Column(name = "DEFENSE", nullable = false)
-    private Integer defense;
+	@Column(name = "DEFENSE", nullable = false)
+	private Integer defense;
 
-    @Column(name = "HP", nullable = false)
-    private Integer hp;
+	@Column(name = "HP", nullable = false)
+	private Integer hp;
 
-    @Column(name = "SPEED", nullable = false)
-    private Integer speed;
+	@Column(name = "SPEED", nullable = false)
+	private Integer speed;
 
-    @Column(name = "IMAGE_URL", nullable = false)
-    private String imageUrl;
+	@Column(name = "IMAGE_URL", nullable = false)
+	private String imageUrl;
 
 }

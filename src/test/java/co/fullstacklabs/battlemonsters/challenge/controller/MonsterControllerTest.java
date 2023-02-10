@@ -1,12 +1,14 @@
 package co.fullstacklabs.battlemonsters.challenge.controller;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.mock;
+import static org.springframework.test.util.AssertionErrors.assertFalse;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import co.fullstacklabs.battlemonsters.challenge.service.BattleService;
+import co.fullstacklabs.battlemonsters.challenge.service.MonsterService;
 import org.hamcrest.core.Is;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +16,18 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.fullstacklabs.battlemonsters.challenge.ApplicationConfig;
 import co.fullstacklabs.battlemonsters.challenge.dto.MonsterDTO;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 
 /**
@@ -59,25 +67,26 @@ public class MonsterControllerTest {
 
     @Test
     void shoulGetMonsterNotExists() throws Exception {
-        long id = 3l;
+        //long id = 3l;
+        Integer id = 3;
         this.mockMvc.perform(get(MONSTER_PATH + "/{id}", id))
                 .andExpect(status().isNotFound());
     }
-    
+
     @Test
     void shouldDeleteMonsterSuccessfully() throws Exception {
         int id = 4;
-        
+
         MonsterDTO newMonster = MonsterDTO.builder().id(id).name("Monster 4")
                 .attack(50).defense(30).hp(30).speed(22)
                 .imageUrl("ImageURL1").build();
 
         this.mockMvc.perform(post(MONSTER_PATH).contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(newMonster)));
-                
+
 
         this.mockMvc.perform(delete(MONSTER_PATH + "/{id}", id))
-            .andExpect(status().isOk());                
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -87,22 +96,58 @@ public class MonsterControllerTest {
         this.mockMvc.perform(delete(MONSTER_PATH + "/{id}", id))
                 .andExpect(status().isNotFound());
     }
-    
-     @Test
-     void testImportCsvSucessfully() throws Exception {
-         //TOOD: Implement take as a sample data/monstere-correct.csv
-         assertEquals(1, 1);
-     }
-     
-     @Test
-     void testImportCsvInexistenctColumns() throws Exception {
-         //TOOD: Implement take as a sample data/monsters-wrong-column.csv
-         assertEquals(1, 1);
-     }
-     
-     @Test
-     void testImportCsvInexistenctMonster () throws Exception {
+
+    @Test
+    void testImportCsvSucessfully() throws Exception {
+        //TOOD: Implement take as a sample data/monstere-correct.csv
+        Path path = Paths.get("data/monsters-correct.csv");
+        byte[] fileContent = Files.readAllBytes(path);
+
+        // Create a mock file with the contents of the file
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "monsters-correct.csv",
+                "text/csv",
+                fileContent);
+
+        // Perform a file upload request to your endpoint
+        mockMvc.perform(multipart(MONSTER_PATH + "/import").file(file))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testImportCsvInexistenctColumns() throws Exception {
+        //TOOD: Implement take as a sample data/monsters-wrong-column.csv
+        Path path = Paths.get("data/monsters-wrong-column.csv");
+        byte[] fileContent = Files.readAllBytes(path);
+
+        // Create a mock file with the contents of the file
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "monsters-wrong-column.csv",
+                "text/csv",
+                fileContent);
+
+        // Perform a file upload request to your endpoint
+        mockMvc.perform(multipart(MONSTER_PATH + "/import").file(file))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void testImportCsvInexistenctMonster() throws Exception {
         //TOOD: Implement take as a sample data/monsters-empty-monster.csv
-        assertEquals(1, 1);
-     } 
+        Path path = Paths.get("data/monsters-empty-monster.csv");
+        byte[] fileContent = Files.readAllBytes(path);
+
+        // Create a mock file with the contents of the file
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "monsters-empty-monster.csv",
+                "text/csv",
+                fileContent);
+
+        // Perform a file upload request to your endpoint
+        mockMvc.perform(multipart(MONSTER_PATH + "/import").file(file))
+                .andExpect(status().isInternalServerError());
+    }
 }

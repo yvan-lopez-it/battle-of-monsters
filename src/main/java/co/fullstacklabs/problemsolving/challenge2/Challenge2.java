@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
  */
 public class Challenge2 {
 
+    private static final int MAX_FREQUENCY_3 = 3;
+    private static final int MAX_FREQUENCY_2 = 2;
+
     public static int diceFacesCalculator(int dice1, int dice2, int dice3) {
 
         int[] dicesNumbers = {dice1, dice2, dice3};
@@ -34,12 +37,12 @@ public class Challenge2 {
                 .orElseThrow(() -> new NoSuchElementException("No maximum frequency was found"));
 
         int result;
-        if (maxFrequency == 3) {
+        if (maxFrequency == MAX_FREQUENCY_3) {
             result = dices.stream()
                     .filter(dice -> frequencyMap.get(dice) == 3)
                     .findFirst()
                     .orElseThrow(() -> new NoSuchElementException("No dice with frequency of 3 was found")) * 3;
-        } else if (maxFrequency == 2) {
+        } else if (maxFrequency == MAX_FREQUENCY_2) {
             result = dices.stream()
                     .filter(dice -> frequencyMap.get(dice) == 2)
                     .findFirst()
