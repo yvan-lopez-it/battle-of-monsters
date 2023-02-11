@@ -1,0 +1,44 @@
+--- MONSTERS ---
+
+Get All
+--------
+curl --location --request GET 'http://localhost:8080/monster'
+
+
+Create:
+-------
+curl --location --request POST 'http://localhost:8080/monster' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "id": 4,
+    "name": "monster abc1",
+    "attack": 85,
+    "defense": 40,
+    "hp": 150,
+    "speed": 100,
+    "imageUrl": "https://loremflickr.com/640/480"
+}'
+
+
+Import CSV:
+-----------
+curl --location --request POST 'http://localhost:8080/monster/import' \
+--header 'Content-Type: text/csv' \
+--form 'file=@"/E:/Dev/code-challenges/fls/battle-of-monsters/data/monsters-correct.csv"'
+
+
+--- BATTLE ---
+
+Get All:
+--------
+curl --location --request GET 'http://localhost:8080/battle'
+
+
+Start:
+------
+curl --location --request GET 'http://localhost:8080/battle/start?idMonsterA=2&idMonsterB=1'
+
+
+Delete:
+-------
+curl --location --request DELETE 'http://localhost:8080/battle/9'
