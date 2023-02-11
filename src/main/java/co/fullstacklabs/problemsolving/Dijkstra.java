@@ -1,16 +1,12 @@
 package co.fullstacklabs.problemsolving;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.PriorityQueue;
 
 public class Dijkstra {
 
-    private static final int[][] board = new int[][]{
-            { 42, 51, 22, 10, 0 },
-            { 2, 50, 7, 6, 15 },
-            { 4, 36, 8, 30, 20 },
-            { 0, 40, 10, 100, 1 },
-    };
+    private static final int[][] board = new int[][]{{42, 51, 22, 10, 0}, {2, 50, 7, 6, 15}, {4, 36, 8, 30, 20}, {0, 40, 10, 100, 1},};
 
     private static final int ROW = board.length;
     private static final int COL = board[0].length;
@@ -41,7 +37,7 @@ public class Dijkstra {
         }
         dist[0][0] = board[0][0];
 
-        PriorityQueue<Cell> pq = new PriorityQueue<>((a, b) -> a.cost - b.cost);
+        PriorityQueue<Cell> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a.cost));
         pq.offer(new Cell(0, 0, board[0][0]));
 
         while (!pq.isEmpty()) {
