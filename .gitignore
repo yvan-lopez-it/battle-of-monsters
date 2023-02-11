@@ -33,4 +33,7 @@ target/
 /gradlew.bat
 /gradlew
 /gradle/
+/.settings/
 bin/
+/.classpath
+/.project
