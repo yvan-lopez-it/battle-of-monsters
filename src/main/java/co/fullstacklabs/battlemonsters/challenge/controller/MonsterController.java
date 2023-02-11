@@ -3,7 +3,6 @@ package co.fullstacklabs.battlemonsters.challenge.controller;
 import java.io.IOException;
 import java.util.List;
 
-import co.fullstacklabs.battlemonsters.challenge.model.Monster;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
