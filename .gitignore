@@ -33,3 +33,4 @@ target/
 /gradlew.bat
 /gradlew
 /gradle/
+bin/
