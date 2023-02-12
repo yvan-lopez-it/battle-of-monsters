@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch Challenge3Dijkstra",
+            "request": "launch",
+            "mainClass": "co.fullstacklabs.problemsolving.Challenge3Dijkstra",
+            "projectName": "assessment-cc-java-sr-01"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-BattleMostersChallengeApplication<assessment-cc-java-sr-01>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
