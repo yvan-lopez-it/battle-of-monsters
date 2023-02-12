@@ -43,7 +43,10 @@ public class BattleServiceImpl implements BattleService {
     @Override
     public List<BattleDTO> getAll() {
         List<Battle> battles = battleRepository.findAll();
-        return battles.stream().map(battle -> modelMapper.map(battle, BattleDTO.class)).collect(Collectors.toList());
+        return battles.stream()
+            .map(battle -> modelMapper
+                .map(battle, BattleDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -53,14 +56,14 @@ public class BattleServiceImpl implements BattleService {
             throw new ResourceNotFoundException("Need two monsters to battle.");
         }
 
-        Monster monster1 = monsterRepository.findById(idMonsterA).orElse(null);
-        Monster monster2 = monsterRepository.findById(idMonsterB).orElse(null);
+        Monster monsterA = monsterRepository.findById(idMonsterA).orElse(null);
+        Monster monsterB = monsterRepository.findById(idMonsterB).orElse(null);
 
-        if (monster1 == null || monster2 == null) {
-            throw new ResourceNotFoundException("Monster 1 or 2 not exists - monster1=" + monster1 + "; monster2=" + monster2);
+        if (monsterA == null || monsterB == null) {
+            throw new ResourceNotFoundException("Monster 1 or 2 not exists - monster1=" + monsterA + "; monster2=" + monsterB);
         }
 
-        List<Monster> monsters = Arrays.asList(monster1, monster2);
+        List<Monster> monsters = Arrays.asList(monsterA, monsterB);
 
         // sort monsters by speed and attack
         monsters.sort((m1, m2) -> {
@@ -71,20 +74,21 @@ public class BattleServiceImpl implements BattleService {
         });
 
         // battle algorithm
-        while (monster1.getHp() > 0 && monster2.getHp() > 0) {
-            int damage = Math.max(monster1.getAttack() - monster2.getDefense(), 1);
-            monster2.setHp(monster2.getHp() - damage);
-            damage = Math.max(monster2.getAttack() - monster1.getDefense(), 1);
-            monster1.setHp(monster1.getHp() - damage);
+        while (monsterA.getHp() > 0 && monsterB.getHp() > 0) {
+            int damage = Math.max(monsterA.getAttack() - monsterB.getDefense(), 1);
+            monsterB.setHp(monsterB.getHp() - damage);
+            
+            damage = Math.max(monsterB.getAttack() - monsterA.getDefense(), 1);
+            monsterA.setHp(monsterA.getHp() - damage);
         }
 
         // set winner
-        Monster winner = monster1.getHp() > 0 ? monster1 : monster2;
+        Monster winner = monsterA.getHp() > 0 ? monsterA : monsterB;
 
         //builder lombok
         BattleDTO battleDTO = BattleDTO.builder()
-                .monsterA(modelMapper.map(monster1, MonsterDTO.class))
-                .monsterB(modelMapper.map(monster2, MonsterDTO.class))
+                .monsterA(modelMapper.map(monsterA, MonsterDTO.class))
+                .monsterB(modelMapper.map(monsterB, MonsterDTO.class))
                 .winner(modelMapper.map(winner, MonsterDTO.class))
                 .build();
 
